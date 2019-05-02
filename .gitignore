@@ -4,4 +4,5 @@
 /src/php/lumen/Homestead.yaml
 /src/php/lumen/.env
 serverless-output.yaml
+.idea
 
