@@ -2,44 +2,45 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Entities\Post;
+use App\Transformers\PostTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 
 class PostDoctrineController extends Controller
 {
-    /**
-     * @param EntityManagerInterface $entityManager
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function index(EntityManagerInterface $entityManager) {
+    private $entityManager;
+    private $postTransformer;
 
-        $posts = $entityManager
+    public function __construct(EntityManagerInterface $entityManager, PostTransformer $postTransformer)
+    {
+        $this->entityManager = $entityManager;
+        $this->postTransformer = $postTransformer;
+    }
+
+    /**
+     * @return array|\Illuminate\Http\JsonResponse
+     */
+    public function index() {
+
+        $posts = $this->entityManager
             ->getRepository(Post::class)
             ->findAll();
 
-        //use JsonSerializable->jsonSerialize() method to transform list of posts
-        $transformedPosts = json_encode($posts);
-
-        //transform to JSON
-        $posts = json_decode($transformedPosts);
-
-        return response()->json($posts);
+        return $this->postTransformer->transformAll($posts);
     }
 
     /**
      * @param Request $request
-     * @param EntityManagerInterface $entityManager
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(Request $request, EntityManagerInterface $entityManager) {
+    public function store(Request $request) {
 
         try {
             $post = new Post($request->get('title'));
 
-            $entityManager->persist($post);
-            $entityManager->flush();
+            $this->entityManager->persist($post);
+            $this->entityManager->flush();
 
             return response()->json(['ok' => true, 'data' => $post], 201);
         } catch (\Exception $e) {
