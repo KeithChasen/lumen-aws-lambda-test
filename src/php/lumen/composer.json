@@ -9,6 +9,7 @@
         "aws/aws-sdk-php": "^3.82",
         "laravel-doctrine/orm": "1.4.*",
         "laravel/lumen-framework": "5.7.*",
+        "tymon/jwt-auth": "^1.0.0-rc.3",
         "vlucas/phpdotenv": "~2.2"
     },
     "require-dev": {
