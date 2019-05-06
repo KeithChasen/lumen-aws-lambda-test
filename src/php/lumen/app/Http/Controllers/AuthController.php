@@ -62,6 +62,18 @@ class AuthController extends Controller
         return response()->json(['error' => 'User is already registered'], 401);
     }
 
+    public function login(Request $request)
+    {
+        $token = Auth::attempt([
+            'email' => $request->get('email'),
+            'password' => $request->get('password')
+        ]);
+        if (! $token) {
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
+        return $this->respondWithToken($token);
+    }
+
     /**
      * Get the token array structure.
      *

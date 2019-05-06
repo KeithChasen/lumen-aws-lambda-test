@@ -8,7 +8,7 @@ $router->delete('/post/{id}', 'PostDoctrineController@destroy');
 
 $router->group(
     ['prefix' => 'auth'], function ($router) {
-//    $router->get('register', 'AuthController@register');
     $router->post('register', 'AuthController@register');
+    $router->post('login', 'AuthController@login');
 
 });
