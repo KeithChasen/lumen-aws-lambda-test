@@ -12,8 +12,10 @@ class PostDoctrineController extends Controller
     private $entityManager;
     private $postTransformer;
 
-    public function __construct(EntityManagerInterface $entityManager, PostTransformer $postTransformer)
-    {
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        PostTransformer $postTransformer
+    ) {
         $this->entityManager = $entityManager;
         $this->postTransformer = $postTransformer;
     }
@@ -51,10 +53,16 @@ class PostDoctrineController extends Controller
 
     /**
      * @param $id
-     * @return \Illuminate\Http\JsonResponse
+     * @return array
      */
     public function show($id) {
+        $post = $this->entityManager
+            ->getRepository(Post::class)
+            ->findOneBy([
+                'id' => $id
+            ]);
 
+        return $this->postTransformer->transform($post);
     }
 
     /**
