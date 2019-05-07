@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -24,6 +25,11 @@ class Post implements EntityInterface
     private $user;
 
     /**
+     * @ORM\ManyToMany(targetEntity="Category", mappedBy="posts")
+     */
+    private $categories;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $title;
@@ -31,6 +37,7 @@ class Post implements EntityInterface
     public function __construct($title)
     {
         $this->title = $title;
+        $this->categories = new ArrayCollection();
     }
 
     public function getId()
@@ -58,5 +65,11 @@ class Post implements EntityInterface
         $this->user = $user;
 
         return $this;
+    }
+
+    public function addCategory(Category $category)
+    {
+        $category->addPost($this);
+        $this->categories[] = $category;
     }
 }
