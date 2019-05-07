@@ -52,7 +52,9 @@ class Post implements EntityInterface
 
     public function setTitle($title)
     {
-        $this->title = $title;
+        if (!is_null($title)) {
+            $this->title = $title;
+        }
     }
 
     public function getUser()

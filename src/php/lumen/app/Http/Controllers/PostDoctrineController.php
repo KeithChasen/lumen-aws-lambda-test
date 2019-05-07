@@ -108,6 +108,27 @@ class PostDoctrineController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function update($id, Request $request) {
+        try {
+            $post = $this->entityManager
+                ->getRepository(Post::class)
+                ->findOneBy([
+                    'id' => $id
+                ]);
+
+            $post->setTitle($request->get('title'));
+
+            $this->entityManager->flush();
+
+            return response()->json(
+                [
+                    'ok' => true,
+                    'data' => $this->postTransformer->transform($post)
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(['ok' => false], 500);
+        }
 
     }
 
