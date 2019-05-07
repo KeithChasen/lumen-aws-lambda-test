@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Entities\Category;
 use App\Entities\Post;
+use App\Transformers\CategoryTransformer;
 use App\Transformers\PostTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
@@ -13,12 +15,17 @@ class PostDoctrineController extends Controller
     private $entityManager;
     private $postTransformer;
 
+    private $categoryTransformer;
+
     public function __construct(
         EntityManagerInterface $entityManager,
         PostTransformer $postTransformer
+
+        ,CategoryTransformer $categoryTransformer
     ) {
         $this->entityManager = $entityManager;
         $this->postTransformer = $postTransformer;
+        $this->categoryTransformer = $categoryTransformer;
     }
 
     /**
@@ -45,6 +52,26 @@ class PostDoctrineController extends Controller
             $user = Auth::user();
             $post = new Post($request->get('title'));
             $post->setUser($user);
+
+            //check if there's categories and create relations
+            if ($request->get('categories') && is_array($request->get('categories'))) {
+
+                foreach ($request->get('categories') as $categoryId) {
+
+                    $category = $this->entityManager
+                        ->getRepository(Category::class)
+                        ->findOneBy([
+                            'id' => $categoryId
+                        ]);
+
+                    if (!is_null($category) && $category instanceof Category) {
+                        $post->addCategory($category);
+                    }
+
+                }
+
+            }
+
             $this->entityManager->persist($post);
             $this->entityManager->flush();
 
