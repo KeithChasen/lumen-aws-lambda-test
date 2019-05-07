@@ -18,6 +18,9 @@ class Category implements EntityInterface
      */
     private $id;
 
+    /**
+     * @ORM\Column(type="string")
+     */
     private $category;
 
     /**
@@ -26,8 +29,9 @@ class Category implements EntityInterface
      */
     private $posts;
 
-    public function __construct()
+    public function __construct($category)
     {
+        $this->category = $category;
         $this->posts = new ArrayCollection();
     }
 
@@ -39,6 +43,11 @@ class Category implements EntityInterface
     public function getCategory()
     {
         return $this->category;
+    }
+
+    public function setCategory($category)
+    {
+        $this->category = $category;
     }
 
     public function addPost(Post $post)

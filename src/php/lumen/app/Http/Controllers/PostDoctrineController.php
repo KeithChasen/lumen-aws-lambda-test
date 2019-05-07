@@ -31,6 +31,7 @@ class PostDoctrineController extends Controller
             ->findAll();
 
         return $this->postTransformer->transformAll($posts);
+
     }
 
     /**

@@ -6,6 +6,9 @@ $router->group(['middleware' => 'jwt.auth'], function ($router) {
     $router->post('/post', 'PostDoctrineController@store');
     $router->put('/post/{id}', 'PostDoctrineController@update');
     $router->delete('/post/{id}', 'PostDoctrineController@destroy');
+
+    $router->get('/categories', 'CategoryController@index');
+    $router->post('/category', 'CategoryController@store');
 });
 
 $router->group(
