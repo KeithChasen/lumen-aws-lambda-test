@@ -137,7 +137,25 @@ class PostDoctrineController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function destroy($id) {
+        try {
+            $post = $this->entityManager
+                ->getRepository(Post::class)
+                ->findOneBy([
+                    'id' => $id
+                ]);
 
+            $this->entityManager->remove($post);
+            $this->entityManager->flush();
+
+            return response()->json(
+                [
+                    'ok' => true
+                ],
+                201
+            );
+        } catch (\Exception $e) {
+            return response()->json(['ok' => false], 500);
+        }
     }
 
 }
