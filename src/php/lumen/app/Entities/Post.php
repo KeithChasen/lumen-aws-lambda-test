@@ -18,6 +18,12 @@ class Post implements EntityInterface
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="User", inversedBy="posts")
+     * @ORM\JoinColumn(name="user_id", referencedColumnName="id")
+     */
+    private $user;
+
+    /**
      * @ORM\Column(type="string")
      */
     private $title;
@@ -40,5 +46,17 @@ class Post implements EntityInterface
     public function setTitle($title)
     {
         $this->title = $title;
+    }
+
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    public function setUser(User $user = null)
+    {
+        $this->user = $user;
+
+        return $this;
     }
 }

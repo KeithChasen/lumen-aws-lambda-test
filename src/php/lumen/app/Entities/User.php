@@ -2,6 +2,7 @@
 
 namespace App\Entities;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use LaravelDoctrine\ORM\Auth\Authenticatable;
@@ -15,6 +16,11 @@ class User implements JWTSubject, EntityInterface, AuthContract
 {
 
     use Authenticatable;
+
+    /**
+     * @ORM\OneToMany(targetEntity="Post", mappedBy="user")
+     */
+    private $posts;
 
     /**
      * @ORM\Id
@@ -32,6 +38,7 @@ class User implements JWTSubject, EntityInterface, AuthContract
     {
         $this->email = $email;
         $this->password = $password;
+        $this->posts = new ArrayCollection();
     }
 
     /**
@@ -52,6 +59,18 @@ class User implements JWTSubject, EntityInterface, AuthContract
     public function getAuthIdentifier()
     {
         return $this->getId();
+    }
+
+    public function getPosts()
+    {
+        return $this->posts;
+    }
+
+    public function addPost(Post $post)
+    {
+        $this->posts[] = $post;
+
+        return $this;
     }
 
     public function getId()

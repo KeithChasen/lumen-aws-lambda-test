@@ -6,6 +6,7 @@ use App\Entities\Post;
 use App\Transformers\PostTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
+use Auth;
 
 class PostDoctrineController extends Controller
 {
@@ -39,12 +40,20 @@ class PostDoctrineController extends Controller
     public function store(Request $request) {
 
         try {
-            $post = new Post($request->get('title'));
 
+            $user = Auth::user();
+            $post = new Post($request->get('title'));
+            $post->setUser($user);
             $this->entityManager->persist($post);
             $this->entityManager->flush();
 
-            return response()->json(['ok' => true, 'data' => $post], 201);
+            return response()->json(
+                [
+                    'ok' => true,
+                    'data' => $this->postTransformer->transform($post)
+                ],
+                201
+            );
         } catch (\Exception $e) {
             return response()->json(['ok' => false], 500);
         }

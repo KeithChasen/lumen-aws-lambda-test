@@ -14,7 +14,8 @@ class PostTransformer extends BasicTransformer
     {
         return [
             'id' => $entity->getId(),
-            'title' => $entity->getTitle()
+            'title' => $entity->getTitle(),
+            'user_id' => $entity->getUser()->getId()
         ];
     }
 }
