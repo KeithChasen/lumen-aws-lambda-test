@@ -9,35 +9,49 @@ use App\Transformers\PostTransformer;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Auth;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 
 class PostDoctrineController extends Controller
 {
+    const DEFAULT_START_PAGINATION = 0;
+    const DEFAULT_MAX_PAGINATION = 5;
+
     private $entityManager;
     private $postTransformer;
-
-    private $categoryTransformer;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         PostTransformer $postTransformer
-
-        ,CategoryTransformer $categoryTransformer
     ) {
         $this->entityManager = $entityManager;
         $this->postTransformer = $postTransformer;
-        $this->categoryTransformer = $categoryTransformer;
     }
 
     /**
-     * @return array|\Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return array
      */
-    public function index() {
+    public function index(Request $request) {
+
+        $start = $request->get('start') ?? self::DEFAULT_START_PAGINATION;
+        $max = $request->get('max') ?? self::DEFAULT_MAX_PAGINATION;
+
+        $dql = "SELECT posts from App\Entities\Post posts";
 
         $posts = $this->entityManager
-            ->getRepository(Post::class)
-            ->findAll();
+            ->createQuery($dql)
+            ->setFirstResult($start)
+            ->setMaxResults($max);
 
-        return $this->postTransformer->transformAll($posts);
+        $posts = new Paginator($posts);
+
+        $postsArray = [];
+
+        foreach ($posts as $post) {
+            $postsArray[] = $this->postTransformer->transform($post);
+        }
+
+        return $postsArray;
 
     }
 
