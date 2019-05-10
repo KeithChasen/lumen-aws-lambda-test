@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Entities\Category;
 use App\Entities\Post;
 use App\Transformers\PostTransformer;
-use function Aws\filter;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Auth;
@@ -32,28 +31,24 @@ class PostDoctrineController extends Controller
     }
 
     protected function checkFilters(Request $request) {
-
-        $dql = "SELECT p from App\Entities\Post p";
-
         $filterArray = [];
         foreach ($request->all() as $key => $value) {
             if (in_array($key, self::POST_FILTERS) && !empty($value)) {
-                $filterArray[] =  ' p.' . $key . ' LIKE :' . $key;
+                $filterArray[] = " p.{$key} LIKE :{$key}";
             }
         }
 
-        $filterString = '';
-        if (!empty($filterArray)) {
-            $filterString = ' WHERE ' . implode(' AND ', $filterArray);
-        }
-
-        $dql .= $filterString;
+        $dql = "SELECT p from App\Entities\Post p " . (
+            !empty($filterArray) ?
+                ' WHERE ' . implode(' AND ', $filterArray) :
+                ''
+            );
 
         $query = $this->entityManager->createQuery($dql);
 
         foreach ($request->all() as $key => $value) {
             if (in_array($key, self::POST_FILTERS) && !empty($value)) {
-                $query->setParameter($key, '%' . $value . '%');
+                $query->setParameter($key, "%{$value}%");
             }
         }
 
