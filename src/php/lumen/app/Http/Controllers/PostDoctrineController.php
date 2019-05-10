@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Entities\Category;
 use App\Entities\Post;
-use App\Transformers\CategoryTransformer;
 use App\Transformers\PostTransformer;
+use function Aws\filter;
 use Doctrine\ORM\EntityManagerInterface;
 use Illuminate\Http\Request;
 use Auth;
@@ -15,6 +15,10 @@ class PostDoctrineController extends Controller
 {
     const DEFAULT_START_PAGINATION = 0;
     const DEFAULT_MAX_PAGINATION = 5;
+
+    const POST_FILTERS = [
+      'title'
+    ];
 
     private $entityManager;
     private $postTransformer;
@@ -27,6 +31,36 @@ class PostDoctrineController extends Controller
         $this->postTransformer = $postTransformer;
     }
 
+    protected function checkFilters(Request $request) {
+
+        $dql = "SELECT p from App\Entities\Post p";
+
+        $filterArray = [];
+        foreach ($request->all() as $key => $value) {
+            if (in_array($key, self::POST_FILTERS) && !empty($value)) {
+                $filterArray[] =  ' p.' . $key . ' LIKE :' . $key;
+            }
+        }
+
+        $filterString = '';
+        if (!empty($filterArray)) {
+            $filterString = ' WHERE ' . implode(' AND ', $filterArray);
+        }
+
+        $dql .= $filterString;
+
+        $query = $this->entityManager->createQuery($dql);
+
+        foreach ($request->all() as $key => $value) {
+            if (in_array($key, self::POST_FILTERS) && !empty($value)) {
+                $query->setParameter($key, '%' . $value . '%');
+            }
+        }
+
+        return $query;
+
+    }
+
     /**
      * @param Request $request
      * @return array
@@ -36,14 +70,12 @@ class PostDoctrineController extends Controller
         $start = $request->get('start') ?? self::DEFAULT_START_PAGINATION;
         $max = $request->get('max') ?? self::DEFAULT_MAX_PAGINATION;
 
-        $dql = "SELECT posts from App\Entities\Post posts";
+        $query = $this->checkFilters($request);
 
-        $posts = $this->entityManager
-            ->createQuery($dql)
-            ->setFirstResult($start)
+        $query = $query->setFirstResult($start)
             ->setMaxResults($max);
 
-        $posts = new Paginator($posts);
+        $posts = new Paginator($query);
 
         $postsArray = [];
 
