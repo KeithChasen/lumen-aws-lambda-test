@@ -1,4 +1,7 @@
 # Run AWS Lambda with Lumen
 
-The full story here: https://link.medium.com/4bRFZ3kJqT 
-
+Tried out serverless pack for lumen from https://link.medium.com/4bRFZ3kJqT 
+and updated it with laravel doctrine and JWT auth
+and described it on my Medium:
+- https://medium.com/@keithchasen/how-to-set-up-lumen-with-doctrine-d1382c675239
+- https://medium.com/@keithchasen/lumen-app-authorization-with-jwt-and-doctrine-3427cd3cb41
